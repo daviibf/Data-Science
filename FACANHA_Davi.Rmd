@@ -1,0 +1,508 @@
+---
+title: 'Mini-projet MDI220: Statistique'
+author: "BARRETO FAÇANHA, Davi"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  pdf_notebook: default
+---
+### **EXERCICE 01:**
+
+
+```{r}
+data(discoveries)
+
+donnees = discoveries
+n = length(discoveries)
+```
+
+#### **Question 01:**
+
+Nous avons un jeu de données qui montre le nombre de 'grands' découvertes scientifiques effectuées, pendant chaque année, entre 1860 et 1959. Compte tenu les variables aléatoires associées $X_{i}$ indépendantes et identiquement distribuées, nous supposons comme première hypothèse arbitraire qu’elle suit la distribution de la densité géométrique:
+        
+$$p_{\theta}(x) = \theta(1-\theta)^{x}, x \epsilon N $$
+        
+Cependant, nous devons estimer la valeur $\theta$ qui représente le mieux notre distribution. Pour cela, nous allons utiliser la méthode du maximum de vraisemblance. Notre estimateur sera une fonction de $x$, donc,
+        
+$$ L(x | \theta) = \overset { n }{ \underset { i=1 }{ \prod }} p_{\theta}(x_{i}) = \theta^{n}(1-\theta)^{\sum x} $$ 
+
+Comme la fonction logarithmique est continue et croissante, maximiser la vraisemblance est la même chose que maximiser son logarithme.
+        
+$$ L(x | \theta) = n \cdot log(\theta) + log(1-\theta) \cdot \sum{x} \\
+\dot {L}(x | \theta) = \frac{n}{\theta} - \frac{\sum{x}}{1 - \theta} = 0 \\
+\hat{\theta} = \frac{n}{n + \sum x}
+$$ 
+
+
+```{r}
+var = var(donnees)
+sommation = sum(donnees)
+moyenne = mean(donnees)
+
+theta = n/(n + sommation)
+sprintf('La valeur theta estimée par la vraisemblance: %f', theta)
+```
+
+#### **Question 02:**
+Loi de Poisson: 
+
+$$P(X = k) = \frac{e^{-\lambda}\lambda^{x}}{x!}  $$
+        
+D'où $\lambda$ sera notre fréquence moyenne(Esperance):
+        
+$$ 
+E(X) = \lambda \\
+L(x|\theta) = \overset{n}{\underset{i=1}{\prod}} \frac{e^{-\lambda}\lambda^{x}}{x!} = \frac{e^{-n\lambda}\lambda^{\sum x}}{\prod x_{i}!}  
+$$ 
+        
+Appliquant également le logarithme et la derivation,
+        
+$$ 
+L(x|\theta) = -n\lambda +log(\lambda)\sum x -\sum x  \\ 
+\dot {L}(x | \theta) = \frac{\sum x}{\lambda} - n = 0 
+$$
+        
+Enfin, on trouve le paramètre pour notre hypothèse de Poisson:
+        
+$$ \hat{\lambda} = \frac{\sum x}{n}  $$
+```{r}
+lamb = sommation/n
+sprintf('La valeur lambda estimée par la vraisemblance: %f', lamb)
+
+```
+        
+#### **Question 03:**
+
+#### **Loi Geometrique:** 
+Par Definition, l'Esperance theorique sera :
+$$E[X] = \frac{1 - \hat{\theta}}{\hat{\theta}} \quad Var[X] = \frac{1 - \hat{\theta}}{\hat{\theta}^2}$$
+                
+Pour cette raison,
+                
+$$ E[X] = 3.1 \quad \mu(X) = 3.1 $$
+$$ Var[X] = 12,710000 \quad \sigma(X) = 5.08 $$
+
+```{r}
+espTheorGeo = (1-theta)/theta
+varTheorGeo = (1-theta)/theta^2
+sprintf('L\'Esperance Theorique pour la Loi Geometrique : %f', espTheorGeo)
+sprintf('L\'Esperance Empirique des donnees : %f', moyenne)
+sprintf('La Variance Theorique pour la Loi Geometrique : %f', varTheorGeo)
+sprintf('La Variance Empirique des donnees : %f', var)
+```         
+                
+#### **Loi de Poisson:** 
+Par Definition, l'Esperance theorique sera :
+                
+$$E[X] = Var[X] = \lambda $$
+                
+Pour cette raison,
+                
+$$ E[X] = 3.1 \quad \mu(X) = 3.1 $$
+$$ Var[X] = 3.1 \quad \sigma(X) = 5.08 $$
+            
+Donc, le modèle qui me semble le plus approprié est le modèle de Poisson, car l'erreur de variance est égale pour les deux, mais pour la seconde, l'esperance a atteint la même valeur que la moyenne empirique.
+            
+```{r}
+espTheorPois = lamb
+varTheorPois = lamb
+sprintf('L\'Esperance Theorique pour la Loi Geometrique : %f', espTheorPois)
+sprintf('L\'Esperance Empirique des donnees : %f', moyenne)
+sprintf('La Variance Theorique pour la Loi Geometrique : %f', varTheorPois)
+sprintf('La Variance Empirique des donnees : %f', var)
+```    
+
+#### **Question 04:**
+
+```{r}
+# Plot Loi Geométrique 
+yGeom = dgeom(donnees, theta)
+# Plot Loi de Poisson
+yPois = dpois(donnees, lamb)
+
+# Histograma avec chaq'une des lois.
+h = hist(donnees, right = F, probability=TRUE, main="Histogramme x Fonctions de Densité", breaks = 13)
+  lines(donnees[0:100], yPois, col = 'red', type='p')
+  lines(donnees[0:100], yGeom, col = 'blue', type='p')
+  legend(7, 0.24, legend=c("Histogramme", "Poisson", "Geometrique"), col=c("black", "red", "blue"), lty=1:1, title= "Curves")
+
+```   
+
+Et encore une fois, nous pouvons confirmer notre première hypothèse sur le bon ajustement de la distribution de Poisson.
+
+#### **Question 05:**
+
+```{r}
+# QQ-PLOT - Loi Geométrique
+qGeom = qgeom(ppoints(n), theta)
+qqplot(qGeom, donnees, xlab = 'Loi Géometrique', ylab = 'Donnes')
+qqline(donnees, distribution = function(x) qgeom(x, theta), col='red')
+
+#QQ-PLOT - Loi de Poisson
+qPois = qpois(ppoints(n), lamb)
+qqplot(qPois, donnees, xlab = 'Loi Poisson', ylab = 'Donnes')
+qqline(donnees, distribution = function(x) qpois(x, lamb), col ='red')
+```
+
+En analysant ces deux graphiques, il est possible de voir que la Distribution de Poisson a atteint des valeurs plus proches de la diagonale que la Distribution de Geometrique.
+
+
+#### **Question 06:**
+
+
+Pour $j \in \{1, ... ,k\}$, soit $n_j = |\{ i:Xi\in Ij \}|$
+
+$$
+Pour \space j \in \{1, ... ,k\}, soit \space n_j = |\{ i:Xi\in Ij \}| \\
+avec \\
+I = \{ \{0 \}, \{1 \}, \{2 \}, \{3 \}, \{4 \}, \{5,+\infty) \}\} \\
+où \\
+p_{1,...,5} = P(X \in I_j) = P(X = j) \\ 
+p_6 = P(X \in I_6) = P(X >= 5) = 1 - \sum_{j =1}^{5}{p_j}
+$$
+
+C'est-à-dire que le vecteru $n_j$ va garder les frequences de l'histogramme pour que on puisse calculer la probabilité suivant les définitions de la question.
+
+```{r}
+
+# Vecteur de probabilités p_j pour la Loi Geometrique
+pj_Init = dgeom(seq(0,4,1), theta)
+probComplementaire = 1 - sum(pj_Init)
+pj_Geom = c(pj_Init, probComplementaire)
+
+# Vecteur de probabilités p_j pour la Loi de Poisson
+pj_Init = dpois(seq(0,4,1), lamb)
+probComplementaire = 1 - sum(pj_Init)
+pj_Pois = c(pj_Init, probComplementaire)
+
+# Vecteur de frequences I_j 
+freqs = h$counts
+
+nj = freqs[1:5]
+aux = sum(freqs[6:length(freqs)])
+nj = c(nj, aux)
+```
+
+La fonction Statistique est definie comme suit:
+
+$$
+S = \sum_{j=1}^6{\frac{(n_j - np_j)^2}{np_j}}
+$$
+Étant donné ça, on calcule la valeur Statistique pour chaque distribuition afin de savoir quelle hypothèse on va refuser. 
+
+```{r}
+#Trouver le Statistique
+Stat_Geom = 0;
+Stat_Poisson = 0;
+
+# Statistique Geometrique
+for (j in 1:6) {
+  Stat_Geom = Stat_Geom + ((nj[j] - n*pj_Geom[j])^2)/(n*pj_Geom[j])
+}
+
+# Statistique de Poisson
+for (j in 1:6) {
+  Stat_Poisson = Stat_Poisson + ((nj[j] - n*pj_Pois[j])^2)/(n*pj_Pois[j])
+}
+```
+
+La statistique $S$ ci-dessus suit une loi du $\chi^2$(chi-2) à $k−1−p$ degrés de liberté, où $p$ est le nombre de paramètres de notre loi de distribuition. Donc, la Statistique a 4 degrés de liberté.
+
+```{r}
+## Degrees de liberte
+# S ci-dessus suit une loi du χ 2 (chi-2) à k − 1 − p degrés de liberté.
+DegreeLiberte = 6 -1 -1
+
+# P-valeur pour la loi Geometrique 
+pValeur = pchisq(Stat_Geom, DegreeLiberte)
+pValeur_Geom = 1 - pValeur
+
+# P-valeur pour la loi de Poisson 
+pValeur = pchisq(Stat_Poisson, DegreeLiberte)
+pValeur_Poisson = 1 - pValeur
+
+## Quantile
+confiance = 1 - 0.05
+qntl = qchisq(confiance, DegreeLiberte)
+```
+$$
+p-valeur_{geom} = 9,60055 \cdot 10^{-5} \\
+p-valeur_{poiss} = 0,1089514 \\
+quantile = 9,487729 \\
+S_{Geom} = 33,46325  \\
+S_{Poiss} = 7,563272  \\
+S_{Geom} > quantille \rightarrow  Rejeté  \\ 
+S_{Poiss} < quantille \rightarrow  Approuvé \\
+$$
+
+
+
+### **EXERCICE 02:**
+
+#### **Question 01:**  
+Tout d'abord, on a besoin de démontrer que $P_{\lambda}(\sum{X_{i}} \ge s) \space \forall s \ge 1$. Donc,
+
+$$
+P_{\lambda}(\sum{X_{i}} \ge s) = 1 - \sum_{k=0}^{s-1}{\frac{(nk)^k exp[-nk]}{k!}}
+$$
+La fonction de densité est discrète dans $x$ mais constante dans $\lambda$. Par conséquent, on dérive par rapport à $\lambda$ et vérifions que sa dérivée est toujours $\ge 0$. Supposons $P_{\lambda}(\sum{X_{i}} \ge s)$ comme $f(\lambda)$.
+
+$$
+\frac{\partial f(\lambda)}{\partial \lambda} = -\frac{\partial}{\partial \lambda} \sum_{k=0}^{s-1}{\frac{(nk)^k exp[-nk]}{k!}} = \sum_{k=0}^{s-1}{\frac{n^{k+1}\lambda^{k}exp[-nk]}{k!}} - \sum_{k=0}^{s-1}{\frac{n^{k}\lambda^{k-1}exp[-nk]}{(k-1)!}} 
+\\
+= \sum_{u=1}^{s}{\frac{n^{u}\lambda^{u-1}exp[-nk]}{(u-1)!}} - \sum_{k=0}^{s-1}{\frac{n^{k}\lambda^{k-1}exp[-nk]}{(k-1)!}}
+\\
+= \frac{n^{s}\lambda^{s-1}exp[-nk]}{(s-1)!} \ge 0 \rightarrow Toujours \space Croissante
+$$
+
+#### **Question 02:**  
+
+
+
+$$
+\text{Notre fonction Statistique est définie par,}\\
+T = \sum_{i=1}^{n}{X_i} \quad avec \quad \delta(T) = 1\{T > s\} \\
+$$
+
+$$
+\text{D'une façon que, } \\
+X \sim Poisson(\lambda) \\
+T \sim Poisson(n\lambda) \\
+$$
+$$
+\text{Avec cela, on définit nos hypothèses} \\
+H_{ 0 }:\lambda \le 3 \quad 
+H_1: \lambda > 3 \\
+$$
+
+$$
+\text{On sait aussi que:} \\
+\alpha =sup(E_{ n\lambda  }(\delta (T)))=P_{ n\lambda }(T>s)\quad ; { pour \space \lambda =3 }\\
+\text{Néanmoins}\\
+P_{ 3n }(T>s)\le 0.05 \rightarrow  P_{ 3n }(T\le s)>0.95
+$$
+Appliquent la fonction de quantille du R, on trouve $s = 329$, c'est-à-dire, $T < s$.  
+
+```{r}
+s = qpois(0.95, n*3)
+sprintf('La valeur du s = %i', s)
+```
+
+#### **Question 03:** 
+Enfin, on accept la Hypothèse Nulle pour $T<s$.
+
+#### **Question 04:**
+$$
+m = \frac{1}{n}\sum_{i=1}^{n}{x_i} \quad et \quad T = \sum_{i=1}^{n}{x_i} \\
+Donc, \space T = n\cdot m
+$$
+Toutefois, la moyenne est fixée. Alors,
+$$
+T = 3.1 \cdot n
+$$
+
+De cette manière, on augmente $n$ jusqu'au moment que le T soit plus grand que le quantille du $qpois()$ appliqué par $\lambda' = n\lambda$. Lorsque la condition est atteinte, nous arrêtons l'itération et vérifions dans quelle valeur de données elle s'est arrêtée.
+```{r}
+m = moyenne
+j = 0;
+
+while (m*j <= qpois(0.95,j*3)){
+  j = j + 1
+}
+sprintf('La valeur n0 trouvée était: %d', j)
+```
+
+C'est-à-dire, on aurait besoin de 811 données pour pouvoir rejeter $H_0$.
+
+
+#### **Question 05:**
+
+Pour la fonction de Puissance:
+$$
+\beta(\lambda) = 1 - P_{\lambda}[\text{accepter à tort $H_0$}] \quad et \quad \lambda \in (3,4]
+$$
+On peut plotter un graphique du comportement de la Fonction Puissance.
+
+```{r}
+# Les lambdas de l'intervalle fixé
+vecteurLambda = 100*seq(3.000001, 4, 0.000001)
+
+# La Puissance Beta definie
+betaLambda = 1 - ppois(s, lambda = vecteurLambda)
+
+plot(vecteurLambda/100 , betaLambda, main = 'Fonction Puissance x Lambda', type = 'l', xlab = expression(lambda) , ylab = expression(paste(beta, '(',lambda, ')')))
+```
+
+
+On définit une intervalle de plotter et fait une interaction qui augmente la quantité de données jusqu'à ce que la puissance devienne plus grande que $0.9$.
+
+```{r}
+s_aux = s;
+n_aux = 100
+
+# Trouver la condition de probabilité
+while (1 - ppois(s_aux, lambda = 3.5*n_aux) < 0.9) {
+  n_aux = n_aux + 1
+  s_aux = qpois(0.95, lambda = 3*n_aux)
+}
+
+sprintf('On a trouvé un minimum de %i donnees', n_aux)
+```
+
+
+
+### **EXERCICE 03**
+
+#### **Question 01:**  
+
+La loi conjuguée de Poisson, pour la notre loi a priori, est la distribuition Gamma. De cette façon,
+
+$$
+\pi(\lambda) \sim Gamma(\lambda, \theta, k) \\
+Gamma(\lambda, \theta, k) = \frac{x^{k-1}exp[-\frac{\lambda}{\theta}]}{\Gamma(k)\theta^{k}} 
+$$
+
+Pour les distributions Gamma des paramètres $\theta$ et $k$, on a que:
+
+$$
+E_{\pi}(\lambda) = k\theta = 5 \\
+Var_{\pi}(\lambda) = 100 = k\theta^2
+$$
+
+En résolvant ce système simple, on trouve $\theta = 20$ et $k = 0.25$.
+
+Finalement,
+$$
+\pi(\lambda) = \frac{x^{-\frac{3}{4}}exp[-\frac{\lambda}{20}]}{\Gamma(\frac{1}{4})20^{\frac{1}{4}}} 
+$$
+```{r}
+kGamma = 0.25
+thetaGamma = 20
+yGamma = dgamma(donnees, shape = kGamma, scale = thetaGamma)
+
+```
+
+#### **Exercice 02:**
+
+Par definition, la loi a posteriori suivra la loi Gamma aussi. On calcule la lois a posteriori comme suit,
+
+$$
+\pi(\lambda | X) = \frac {P_{\theta}(X)\pi(\lambda)}{ \int _{\Theta}{P_{\lambda'}(X)\pi(\lambda')}\mu(d\lambda')} 
+$$
+
+Pour faciliter la compréhension, calculons d’abord seulement le marginal, c'est-à-dire, le dénominateur.
+
+$$
+m( \lambda' ) = \int_{0}^{\inf}{ \frac{\lambda^{\sum{x}} exp[-n\lambda]}{ \prod_{1}^{n}{x_i !}}} \frac{\lambda^{k-1} exp[-\frac{\lambda}{\theta}]}{\Gamma(k)\theta^k}
+\\
+= \frac{1}{\prod_{1}^{n}{x_i !} \Gamma(k)\theta^k} \int_{0}^{\inf}{\lambda^{\sum{x} + k - 1}exp[-n\lambda - \frac{\lambda}{\theta}]}d\lambda
+$$
+
+Appelant $u = n\lambda + \frac{\lambda}{\theta}$, on résout l'intégrale par la méthode de la substitution. 
+
+$$
+= \frac{1}{\prod_{1}^{n}{x_i !} \Gamma(k)\theta^k} \frac{1}{(n + \frac{1}{\theta})^{\sum{x} + k}} \int_{0}^{\inf}{u^{\sum{x} + k - 1} exp[-u]}du
+$$
+
+Par la definition de fonction Gamma trouvé ci-dessous, on peut récrire l'integrale comme une fonction gamma, plus en bas.
+
+$$
+\Gamma : z \mapsto \int_0^{+\infty}  t^{z-1}\,e^{-t}\,\mathrm{d}t \\
+m(\lambda | X) = \frac{\Gamma(\sum{x} + k)}{\prod_{1}^{n}{x_i !} \Gamma(k)\theta^k (n + \frac{1}{\theta})^{\sum{x} + k}} 
+$$
+
+Enfin, on fait la substitution sur l'équation générale. Ce faisant, on a
+
+$$
+\pi(\lambda | X) = \frac {\lambda^{\sum{x}}exp[-n\lambda] \lambda^{k-1}exp[-\frac{\lambda}{\theta}]}{\prod_{1}^{n}{ x_{i}!} \Gamma(k)\theta^{k}} \frac{(\prod_{1}^{n}{ x_{i}!)} \Gamma(k)\theta^{k}}{\Gamma(\sum{x} + k)} (\frac{1}{\theta} + n)^{\sum{x} + k}
+\\
+\pi(\lambda | X) = \frac{\lambda^{\sum{x}+k-1}exp[-n\lambda - \frac{\lambda}{\theta}]}{\Gamma(\sum{x} + k)} \frac{1}{ \frac{1}{(\frac{1}{\theta} + n)^{\sum{x} + k}}}
+\\
+\pi(\lambda | X) \sim Gamma(\lambda, \theta', k')
+$$
+Finalement, on arrive aux nos nouveaux paramètres.
+$$
+\theta' = \frac{\theta}{n\theta + 1} \quad et \quad k' = \sum_{i=1}^{n}{x_i} + k
+$$ 
+
+L'Esperance du estimateur a posteriori é donnée par:
+
+$$
+E_{\pi}(\lambda | X) = \int_{\Theta}{\lambda'}\pi(\lambda')d\lambda' 
+\\
+E_{\pi}(\lambda | X) = \frac{1}{\Gamma(k')\theta'^{k'}} \int_{0}^{\inf}{\lambda'}^{k'}exp[-\frac{\lambda'}{\theta'}]d\lambda' 
+\\
+$$
+
+Si on fait l'intégration par substitution avec $u = \frac{\lambda'}{\theta'}$, l'equation devient:
+
+$$
+\frac{\theta^{k'+1}}{\Gamma(k')\theta'^{k'}} \int_{0}^{\inf}{u^{k'+1 -1}}exp[-u]du
+$$
+
+Cependant,
+
+$$
+\Gamma(z+1)=z \; \Gamma(z)
+$$
+Par conséquent,
+
+$$
+E_{\pi}(\lambda | X) = \frac{\Gamma(k' + 1)}{\Gamma(k')}\theta' = \frac{\Gamma(k')k'}{\Gamma(k')}\theta' = k'\theta'
+$$
+
+Étant $k'$ et $\theta'$ les paramètres que on a trouvé dans la question 3.2, on a:
+
+$$
+k'\theta' = (\sum{x} + k)(\frac{\theta}{n\theta + 1}) 
+$$
+
+Pour que on puisse faire une analyse quanlitative de l'équation de l'esperance, il est important de faire une petite manipulation algébrique. On réécrive les équations comme:
+
+$$
+k'\theta' = (\sum_{i = 0}^{n}{x} + k)(\frac{1}{\frac{1}{\theta} + n}) 
+$$
+Si on applique la limite à l'infini, on vois que l'Esperance a posteriori sera la même que de l'estimateur de vraisemblance de Poisson. Les valeurs de $k$ et $\theta$ sont négligeables.
+$$
+lim_{n \rightarrow \inf}[(\sum_{i = 0}^{n}{x_i} + k)(\frac{1}{\frac{1}{\theta} + n})] = \frac{\sum_{i = 0}^{n}{x_i}}{n} = \hat{\lambda}
+$$
+
+
+
+#### **Exercice 03:**
+
+Après tout qu'on a vu, on calcule:
+
+$$
+\theta' = 0,009995002 \\
+k' = 310.25 \\
+E_{\pi}(\lambda | X) \cong 3.10095 
+$$
+
+#### **Exercice 04:**
+
+Pour,
+$$
+P(\lambda \in I_{|x_{i:n}}) \ge \alpha  
+$$
+On a un intervalle de credibilité donné par:
+
+$$
+I = [\frac{1 - \alpha}{2}, \frac{1 + \alpha}{2}] = [0.025, 0.975]
+$$
+
+```{r}
+kPos = sommation + kGamma
+thetaPos = thetaGamma/(length(discoveries)*thetaGamma + 1)
+
+intervalle <- c(0.025, 0.975)
+qgamma(intervalle, shape = kPos, scale = thetaPos)
+```
+
+Donc, on trouve:
+
+$$
+\text{Bornes Supérieure:$ 2.7654 $}\\
+\text{Bornes Inférieures:$ 3,4553 $}
+$$
