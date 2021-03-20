@@ -8,25 +8,25 @@ If you are a recruiter interested in my skills, check my LinkedIn profile:: http
 
 ### Summary: 
 
-> *General Statistics:*
+#### *General Statistics:*
   - Probabilistical Approach to Data Prediction
 
-> *Linear Statistics:*
+#### *Linear Statistics:*
   - Linear Regression Fundamentals
   - Models and Prediction
 
-> *Optimization for Machine Learning:*
+#### *Optimization for Machine Learning:*
   - Line Search and Gradient Methods
   - SVM
 
-> *Learning Methods:*
+#### *Learning Methods:*
   - K-Nearest-Neighbors
   - Perceptron
 
-> *First Approach with Keras:*
+#### *First Approach with Keras:*
   - Single and Multiple Layers Perceptron.
 
-> *Data Analysis:*
+#### *Data Analysis:*
   - Analysis of Traffic in Sao Paulo - Brazil.
     - Parallel Processing (Dask)
     - SQL
