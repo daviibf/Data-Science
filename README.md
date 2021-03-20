@@ -25,3 +25,6 @@ If you are a recruiter interested in my skills, check my LinkedIn profile:: http
 
 > *First Approach with Keras:*
   - Single and Multiple Layers Perceptron.
+
+> *Data Analysis:*
+  - Analysis of Traffic in Sao Paulo - Brazil.
