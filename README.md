@@ -1,4 +1,4 @@
-# Data-Science Repository and studies
+# A little of Data-Science, Machine Learning and Analysis ;)
 
 In recent years, Machine Learning and Data Science have been my passions.
 
