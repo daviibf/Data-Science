@@ -28,3 +28,6 @@ If you are a recruiter interested in my skills, check my LinkedIn profile:: http
 
 > *Data Analysis:*
   - Analysis of Traffic in Sao Paulo - Brazil.
+    - Parallel Processing (Dask)
+    - SQL
+    - Visual Charts and Data Analysis
