@@ -6,6 +6,7 @@ The data set used consists of the results of several speed cameras scattered thr
 
 Techniques:
  - Parallel Processing with Dask (Big Data)
+ - Correlation Analysis
  - NAN values treatment
  - Data Analysis
  - SQL
