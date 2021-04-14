@@ -31,3 +31,11 @@ If you are a recruiter interested in my skills, check my LinkedIn profile:: http
     - Parallel Processing (Dask)
     - SQL
     - Visual Charts and Data Analysis
+
+#### *Natural Language Processing*
+  - Word2Vector
+    - Word2Vector Model created from Twitter Reviews Data
+    - Google Word2Vector
+    - Stanford Word2Vector
+  - Word Vector Embedding
+  - Sentiments Recognition with SLP and Random Forest
