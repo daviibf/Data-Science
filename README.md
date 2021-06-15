@@ -39,3 +39,9 @@ If you are a recruiter interested in my skills, check my LinkedIn profile:: http
     - Stanford Word2Vector
   - Word Vector Embedding
   - Sentiments Recognition with SLP and Random Forest
+
+#### *Image Processing*
+  - Docker
+  - CVAT
+  - YOLOv3
+  - OpenCV
