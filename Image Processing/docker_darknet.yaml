@@ -1,0 +1,16 @@
+version: '2.3'
+services:
+    darknet:
+       image: darknet_yolo
+       container_name: darknet_yolo_training
+       stdin_open: true
+       #restart: always
+       runtime: nvidia
+       volumes:
+          - ./data:/darknet/data/
+          - ./cfg:/darknet/cfg/
+          - ./backup:/darknet/backup/
+          - ./files:/darknet/files/
+       build:
+          context: .
+          shm_size: 100000
