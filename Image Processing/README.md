@@ -1,5 +1,5 @@
 ## The Training Turtle
-### A State-of-the-Art Pose Estimation project that aims revolutionize the Martial Arts World.
+### A State-of-the-Art Pose Estimation project that aims to revolutionize the Martial Arts World.
 
 This project was done during the AI Project Management Strategy course from the Master 2 - Big/Data IA at Hetic. It was proposed in partnership with @Nawal BENSASSI and @Olivier MAILOLS, the owners of the idea.
 
